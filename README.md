@@ -22,3 +22,7 @@ Press F6 to start/stop from any application. Starting gives you three seconds to
 
 Intervals are at least 1 ms and missed intervals are skipped. Timing is best effort and depends on Windows scheduling. There is no double-click mode, randomized human simulation, or ban-evasion logic. Automation must be permitted by the target app; pacing cannot guarantee compliance or prevent bans. Windows may block input into apps running with higher privileges.
 
+## Acknowledgments
+
+Developed with assistance from OpenAI Codex.
+
