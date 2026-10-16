@@ -138,8 +138,26 @@ fn settings_path() -> std::path::PathBuf {
     std::env::var_os("LOCALAPPDATA")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(std::env::temp_dir)
-        .join("Pulse")
+        .join("ClickerLoop")
         .join("hotkeys.txt")
+}
+
+fn read_hotkey_settings() -> std::io::Result<String> {
+    let path = settings_path();
+    match std::fs::read_to_string(&path) {
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            // Preserve settings from installations predating the app rename.
+            let legacy = path
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .join("Pulse")
+                .join("hotkeys.txt");
+            std::fs::read_to_string(legacy)
+        }
+        result => result,
+    }
 }
 
 fn valid_hotkeys(keys: &[Hotkey; 3]) -> bool {
@@ -151,7 +169,7 @@ fn valid_hotkeys(keys: &[Hotkey; 3]) -> bool {
 
 fn load_hotkeys() -> [Hotkey; 3] {
     let mut keys = default_hotkeys();
-    if let Ok(text) = std::fs::read_to_string(settings_path()) {
+    if let Ok(text) = read_hotkey_settings() {
         let values: Vec<i32> = text
             .split_whitespace()
             .filter_map(|s| s.parse().ok())
@@ -180,7 +198,7 @@ fn load_hotkeys() -> [Hotkey; 3] {
     default_hotkeys()
 }
 
-struct Pulse {
+struct ClickerLoop {
     interval: [String; 5],
     duration: [String; 5],
     timed: bool,
@@ -197,7 +215,7 @@ struct Pulse {
     settings_error: String,
 }
 
-impl Default for Pulse {
+impl Default for ClickerLoop {
     fn default() -> Self {
         Self {
             interval: ["", "", "", "", "100"].map(String::from),
@@ -218,7 +236,7 @@ impl Default for Pulse {
     }
 }
 
-impl Pulse {
+impl ClickerLoop {
     fn hotkey_settings(&mut self, ctx: &egui::Context) {
         if !self.settings_open {
             return;
@@ -362,7 +380,8 @@ impl Pulse {
         if now < run.next {
             return;
         }
-        if shortcut_held || own_window_active()
+        if shortcut_held
+            || own_window_active()
             || [1, 2, 4, 0x10, 0x11, 0x12, 0x5B, 0x5C, 0x75]
                 .into_iter()
                 .any(held)
@@ -423,7 +442,7 @@ fn time_fields(ui: &mut egui::Ui, id: &str, fields: &mut [String; 5]) {
     ui.add_space(12.0);
 }
 
-impl eframe::App for Pulse {
+impl eframe::App for ClickerLoop {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.tick();
         ctx.request_repaint_after(Duration::from_millis(if self.run.is_some() {
@@ -456,7 +475,12 @@ impl eframe::App for Pulse {
             .show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        ui.label(RichText::new("PULSE").size(20.0).strong().color(ACCENT));
+                        ui.label(
+                            RichText::new("CLICKER LOOP")
+                                .size(20.0)
+                                .strong()
+                                .color(ACCENT),
+                        );
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if ui
                                 .add_enabled(self.run.is_none(), egui::Button::new("Hotkeys"))
@@ -532,7 +556,7 @@ impl eframe::App for Pulse {
                     ui.add_space(14.0);
                     caption(ui, "SAFE PACING");
                     ui.small("Single clicks · no catch-up bursts");
-                    ui.small("Pauses over Pulse or while controls are held.");
+                    ui.small("Pauses over this app or while controls are held.");
                     ui.add_space(14.0);
                     let running = self.run.is_some();
                     if ui
@@ -565,8 +589,8 @@ impl eframe::App for Pulse {
 }
 
 fn main() -> eframe::Result {
-    let icon = eframe::icon_data::from_png_bytes(include_bytes!("../assets/pulse-icon.png"))
-        .expect("Embedded Pulse icon must be a valid PNG");
+    let icon = eframe::icon_data::from_png_bytes(include_bytes!("../assets/clicker-loop-icon.png"))
+        .expect("Embedded ClickerLoop icon must be a valid PNG");
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_icon(icon)
@@ -576,7 +600,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "Pulse · Auto Clicker",
+        "Clicker Loop - Autoclicker",
         options,
         Box::new(|cc| {
             let mut fonts = egui::FontDefinitions::default();
@@ -619,7 +643,7 @@ fn main() -> eframe::Result {
             }
             style.spacing.button_padding = egui::vec2(10.0, 8.0);
             cc.egui_ctx.set_style(style);
-            Ok(Box::new(Pulse::default()))
+            Ok(Box::new(ClickerLoop::default()))
         }),
     )
 }
@@ -654,7 +678,7 @@ mod tests {
     }
     #[test]
     fn sessions_and_boundaries() {
-        let mut app = Pulse::default();
+        let mut app = ClickerLoop::default();
         let now = Instant::now();
         app.start(now).unwrap();
         assert!(app.run.as_ref().unwrap().deadline.is_none());

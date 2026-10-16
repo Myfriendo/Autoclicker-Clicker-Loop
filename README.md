@@ -1,14 +1,18 @@
-# Pulse
+# Clicker Loop - Autoclicker
 
-A compact dark Windows mouse autoclicker, written in Rust with an egui interface. Input borders use a shade slightly darker than the boxes; the header contains only the Pulse name.
+Previously named Pulse. The app was renamed to **Clicker Loop - Autoclicker** because another autoclicker already uses the Pulse name. The rename changes the branding; the app's features remain the same, and existing hotkey settings are preserved.
 
-The Pulse icon is embedded in the executable and app window. `assets/pulse-icon.png` is the source artwork; `build.rs` converts it into a Windows icon resource during compilation. The distributed executable needs no separate image files.
+A compact dark Windows mouse autoclicker, written in Rust with an egui interface. Input borders use a shade slightly darker than the boxes; the header contains only the Clicker Loop name.
+
+The Clicker Loop icon is embedded in the executable and app window. `assets/clicker-loop-icon.png` is the source artwork; `build.rs` converts it into a Windows icon resource during compilation. The distributed executable needs no separate image files.
 
 ## Run
 
-Click **Hotkeys** beside the Pulse title to customize Start/stop, Emergency stop, and Capture position. Choose F1–F12, letters, or digits with optional Ctrl/Alt/Shift modifiers. Capture also supports left-click with at least one modifier. Duplicate shortcuts are rejected. Save applies changes and stores them in `%LOCALAPPDATA%\Pulse\hotkeys.txt`; Cancel discards edits and Reset defaults restores the original shortcuts in the editor. Hotkey editing is available when stopped; global shortcuts are suspended while the settings panel is open.
+Saved hotkeys from older installations are loaded automatically if no Clicker Loop settings exist yet. Saving hotkeys writes to the new ClickerLoop settings folder.
 
-Double-click **Launch Pulse.bat** or run `target\release\pulse.exe`. The executable does not require Python or Rust to run.
+Click **Hotkeys** beside the Clicker Loop title to customize Start/stop, Emergency stop, and Capture position. Choose F1–F12, letters, or digits with optional Ctrl/Alt/Shift modifiers. Capture also supports left-click with at least one modifier. Duplicate shortcuts are rejected. Save applies changes and stores them in `%LOCALAPPDATA%\ClickerLoop\hotkeys.txt`; Cancel discards edits and Reset defaults restores the original shortcuts in the editor. Hotkey editing is available when stopped; global shortcuts are suspended while the settings panel is open.
+
+Double-click **Launch Clicker Loop.bat** or run `target\release\clicker-loop.exe`. The executable does not require Python or Rust to run.
 
 To build from source, install Rust with the Windows MSVC toolchain and Visual Studio C++ build tools, then run `cargo build --release`. The launcher builds automatically if the executable is missing. Run `cargo test` for timing and session checks.
 
@@ -18,7 +22,7 @@ Choose **Run until stopped** for an unlimited session, or **Run for a duration**
 
 Choose Current pointer to follow your mouse, or hold Ctrl and left-click a target to capture its screen coordinates (including on additional monitors). The capture click also reaches the target application: choose a harmless place when capturing.
 
-Press F6 to start/stop from any application. Starting gives you three seconds to switch windows. F8 is the global emergency stop. Windows may reserve these shortcuts in some apps. This app pauses while its own window is foreground or a mouse button/modifier is held. Settings are locked during a run; capturing a new position stops the run. Closing Pulse stops all repetition.
+Press F6 to start/stop from any application. Starting gives you three seconds to switch windows. F8 is the global emergency stop. Windows may reserve these shortcuts in some apps. This app pauses while its own window is foreground or a mouse button/modifier is held. Settings are locked during a run; capturing a new position stops the run. Closing Clicker Loop stops all repetition.
 
 Intervals are at least 1 ms and missed intervals are skipped. Timing is best effort and depends on Windows scheduling. There is no double-click mode, randomized human simulation, or ban-evasion logic. Automation must be permitted by the target app; pacing cannot guarantee compliance or prevent bans. Windows may block input into apps running with higher privileges.
 
